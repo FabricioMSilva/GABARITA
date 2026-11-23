@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "db:push": "supabase db push"
+    "db:push": "supabase db push --remote"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
