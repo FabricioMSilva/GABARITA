@@ -811,7 +811,7 @@ export default function HomePage() {
       >
         <div
           className={`mx-auto flex max-w-[1800px] items-center gap-5 px-4 transition-all duration-300 sm:px-7 ${
-            scrolled ? "h-[76px]" : "h-[96px]"
+            scrolled ? "h-[84px]" : "h-[108px]"
           }`}
         >
           <Link
@@ -820,7 +820,7 @@ export default function HomePage() {
             href="/"
           >
             <BrandMark
-              className={scrolled ? "h-16 w-16" : "h-[88px] w-[88px]"}
+              className={scrolled ? "h-[72px] w-[72px]" : "h-[100px] w-[100px]"}
               size="small"
             />
           </Link>
@@ -891,7 +891,7 @@ export default function HomePage() {
         </form>
       </header>
 
-      <div className="mx-auto max-w-[1800px] px-3 pb-8 pt-[120px] md:px-6 xl:pt-[112px]">
+      <div className="mx-auto max-w-[1800px] px-3 pb-8 pt-[132px] md:px-6 xl:pt-[124px]">
         <section
           className="grid min-h-[calc(100vh-110px)] gap-5 xl:grid-cols-[minmax(0,1fr)_400px]"
           id="mapa"

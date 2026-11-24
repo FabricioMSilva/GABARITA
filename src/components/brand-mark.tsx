@@ -1,9 +1,9 @@
 import Image from "next/image";
 
 const sizes = {
-  small: 88,
-  medium: 128,
-  large: 160,
+  small: 100,
+  medium: 140,
+  large: 176,
 } as const;
 
 type BrandMarkProps = {
