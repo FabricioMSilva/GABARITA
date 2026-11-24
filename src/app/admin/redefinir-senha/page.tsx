@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { BrandMark } from "@/components/brand-mark";
 
 export default function ResetAdminPasswordPage() {
   const router = useRouter();
@@ -85,6 +86,13 @@ export default function ResetAdminPasswordPage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-xl items-center px-6 py-16">
       <section className="w-full rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+        <Link
+          className="mb-8 inline-flex"
+          href="/"
+          aria-label="Gabarit.AI Brasil — página inicial"
+        >
+          <BrandMark size="large" />
+        </Link>
         <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
           Área administrativa
         </p>

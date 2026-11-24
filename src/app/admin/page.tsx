@@ -1,7 +1,9 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
+import { BrandMark } from "@/components/brand-mark";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type {
   ReviewCourse,
@@ -343,6 +345,13 @@ export default function AdminPage() {
   if (isLoading && !session) {
     return (
       <main className="mx-auto max-w-5xl px-6 py-16">
+        <Link
+          className="mb-8 inline-flex"
+          href="/"
+          aria-label="Gabarit.AI Brasil — página inicial"
+        >
+          <BrandMark size="large" />
+        </Link>
         <p className="text-slate-600">Carregando área administrativa...</p>
       </main>
     );
@@ -352,6 +361,13 @@ export default function AdminPage() {
     return (
       <main className="mx-auto flex min-h-screen max-w-xl items-center px-6 py-16">
         <section className="w-full rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+          <Link
+            className="mb-8 inline-flex"
+            href="/"
+            aria-label="Gabarit.AI Brasil — página inicial"
+          >
+            <BrandMark size="large" />
+          </Link>
           <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
             Área administrativa
           </p>
@@ -427,16 +443,24 @@ export default function AdminPage() {
   return (
     <main className="mx-auto min-h-screen max-w-7xl px-6 py-10">
       <header className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
-            Área administrativa
-          </p>
-          <h1 className="mt-2 text-3xl font-bold text-slate-900">
-            Revisão de materiais
-          </h1>
-          <p className="mt-2 text-slate-600">
-            Confira os tópicos no edital, edite as aulas e aprove o material.
-          </p>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/"
+            aria-label="Gabarit.AI Brasil — página inicial"
+          >
+            <BrandMark size="medium" />
+          </Link>
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
+              Área administrativa
+            </p>
+            <h1 className="mt-2 text-3xl font-bold text-slate-900">
+              Revisão de materiais
+            </h1>
+            <p className="mt-2 text-slate-600">
+              Confira os tópicos no edital, edite as aulas e aprove o material.
+            </p>
+          </div>
         </div>
         <button
           className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700"
