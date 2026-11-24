@@ -900,7 +900,7 @@ export default function HomePage() {
             <div className="absolute left-4 top-4 z-10 sm:left-6 sm:top-6">
               <motion.button
                 animate={{ y: [0, -3, 0] }}
-                className="group flex max-w-[min(390px,calc(100vw-2rem))] items-center gap-3 rounded-2xl border border-white/70 bg-gradient-to-br from-blue-950 via-blue-900 to-cyan-800 p-3.5 text-left text-white shadow-[0_18px_42px_rgba(30,64,175,0.32)] ring-1 ring-white/20 transition hover:shadow-[0_22px_48px_rgba(30,64,175,0.40)] sm:gap-4 sm:p-4"
+                className="group flex max-w-[min(390px,calc(100vw-3.5rem))] items-center gap-3 rounded-2xl border border-white/70 bg-gradient-to-br from-blue-950 via-blue-900 to-cyan-800 p-3.5 text-left text-white shadow-[0_18px_42px_rgba(30,64,175,0.32)] ring-1 ring-white/20 transition hover:shadow-[0_22px_48px_rgba(30,64,175,0.40)] sm:gap-4 sm:p-4"
                 onClick={() => chooseState("BR")}
                 transition={{
                   duration: 5,
@@ -936,7 +936,7 @@ export default function HomePage() {
               </motion.button>
             </div>
 
-            <div className="absolute right-3 top-24 z-10 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-white/80 bg-white/75 px-3 py-2 text-[9px] font-semibold text-slate-600 shadow-lg backdrop-blur-xl sm:right-6 sm:top-6 sm:gap-2 sm:text-[10px]">
+            <div className="absolute right-3 top-[140px] z-10 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-white/80 bg-white/75 px-3 py-2 text-[9px] font-semibold text-slate-600 shadow-lg backdrop-blur-xl sm:right-6 sm:top-6 sm:gap-2 sm:text-[10px]">
               <span className="h-3 w-3 rounded-sm bg-slate-200 shadow-inner" /> 0
               <span className="h-3 w-3 rounded-sm bg-gradient-to-br from-green-100 to-green-300" /> 1–10
               <span className="h-3 w-3 rounded-sm bg-gradient-to-br from-green-300 to-green-500" /> 11–30

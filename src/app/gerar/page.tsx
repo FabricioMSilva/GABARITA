@@ -58,7 +58,7 @@ export default function GeneratePage() {
     <main className="mx-auto flex min-h-screen w-full max-w-3xl items-center px-6 py-16">
       <section className="w-full rounded-2xl border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
         <Link
-          className="mb-8 inline-flex"
+          className="mb-8 flex w-full justify-center"
           href="/"
           aria-label="Gabarit.AI Brasil — página inicial"
         >

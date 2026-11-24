@@ -346,7 +346,7 @@ export default function AdminPage() {
     return (
       <main className="mx-auto max-w-5xl px-6 py-16">
         <Link
-          className="mb-8 inline-flex"
+          className="mb-8 flex w-full justify-center sm:w-auto sm:justify-start"
           href="/"
           aria-label="Gabarit.AI Brasil — página inicial"
         >
@@ -362,7 +362,7 @@ export default function AdminPage() {
       <main className="mx-auto flex min-h-screen max-w-xl items-center px-6 py-16">
         <section className="w-full rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
           <Link
-            className="mb-8 inline-flex"
+            className="mb-8 flex w-full justify-center"
             href="/"
             aria-label="Gabarit.AI Brasil — página inicial"
           >
@@ -379,7 +379,7 @@ export default function AdminPage() {
           </p>
 
           {!supabase && (
-            <p className="mt-5 rounded-lg bg-amber-50 p-4 text-sm text-amber-900">
+            <p className="mt-5 break-words rounded-lg bg-amber-50 p-4 text-sm text-amber-900">
               A autenticação ainda não foi configurada. Defina
               NEXT_PUBLIC_SUPABASE_ANON_KEY na Vercel.
             </p>
@@ -442,8 +442,8 @@ export default function AdminPage() {
 
   return (
     <main className="mx-auto min-h-screen max-w-7xl px-6 py-10">
-      <header className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
+      <header className="flex flex-col items-center gap-4 text-center sm:flex-row sm:flex-wrap sm:justify-between sm:text-left">
+        <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
           <Link
             href="/"
             aria-label="Gabarit.AI Brasil — página inicial"
