@@ -1,20 +1,82 @@
-# Gerador de cursos para concursos
+# Gerador autônomo de cursos para concursos
 
-MVP em Next.js 15, TypeScript, Tailwind CSS e Supabase. Nesta etapa, `/gerar` consulta cursos prontos e, quando não encontra um, registra a solicitação em `fila_geracao`. O processamento do edital e a criação de aulas ainda não estão implementados.
+Aplicação Next.js 15, TypeScript, Tailwind CSS e Supabase. O pipeline monitora feeds RSS/Atom, registra novos editais, extrai texto de PDFs e monta rascunhos de cursos usando regras e modelos fixos.
 
-## Executar
+## Pipeline
 
-1. Instale as dependências com `npm install`.
-2. Copie `.env.example` para `.env.local` e preencha as credenciais do projeto Supabase. `SUPABASE_SERVICE_ROLE_KEY` é segredo de servidor e nunca deve ser exposta ao navegador.
-3. Autentique a CLI com `npx supabase login` e vincule o projeto com `npx supabase link --project-ref <project-ref>`. A senha do banco é solicitada localmente pela CLI quando necessária; não a coloque no repositório.
-4. Aplique as migrations remotas com `npm run db:push`.
-5. Inicie o projeto com `npm run dev`.
+1. `/api/gerar` retorna um curso pronto ou adiciona uma solicitação a `fila_geracao`.
+2. O Vercel Cron chama `/api/cron/pipeline`, protegido por `CRON_SECRET`.
+3. `ConcursoMonitorService` consulta os feeds RSS/Atom ativos e registra itens novos.
+4. `EditalProcessorService` baixa PDFs, extrai texto e identifica matérias.
+5. `CursoGeneratorService` cria cinco aulas-modelo por matéria detectada e salva o curso como rascunho.
+6. O administrador acessa `/admin`, revisa e edita o material e só então aprova o curso para disponibilização.
+7. As mudanças de revisão são salvas no Supabase; o gerador por regras não aprende sozinho nem cria explicações, questões ou gabaritos verificados.
 
-## Estrutura
+## Configuração
 
-- `src/app/gerar`: formulário do gerador.
-- `src/app/api/gerar`: endpoint para localizar curso ou enfileirar geração.
-- `src/lib/queue`: serviço de acesso à fila e consulta de cursos.
-- `src/lib/supabase`: cliente Supabase exclusivo do servidor.
-- `supabase/migrations/20261123195500_initial_schema.sql`: schema inicial versionado para aplicar com a Supabase CLI.
-- `supabase/config.toml`: configuração local da Supabase CLI.
+Defina estas variáveis no ambiente local e em **Vercel > Settings > Environment Variables**:
+
+- `NEXT_PUBLIC_SUPABASE_URL`: URL do projeto Supabase.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: chave publicável do Supabase usada pelo formulário de login administrativo.
+- `SUPABASE_SERVICE_ROLE_KEY`: chave secreta Supabase, somente no servidor.
+- `SUPABASE_PROJECT_REF`: identificador do projeto usado pela CLI.
+- `CRON_SECRET`: segredo aleatório enviado pela Vercel no header `Authorization: Bearer`.
+- `ADMIN_EMAIL`: e-mail exato da conta Supabase Auth autorizada a revisar cursos.
+- O gerador usa modelos fixos e regras locais; não exige chave de API de IA. O administrador deve conferir cada material com o edital e fontes oficiais.
+
+Não publique chaves secretas no repositório nem use prefixo `NEXT_PUBLIC_` para segredos.
+
+## Monitorar um concurso
+
+O projeto não inclui feeds pré-configurados: cada fonte e concurso a monitorar precisa ser cadastrado no banco. Use um feed RSS ou Atom público com HTTPS:
+
+```sql
+insert into public.concursos_monitorados
+  (nome, profissao, feed_url, palavras_chave)
+values
+  (
+    'Transpetro',
+    'Enfermagem',
+    'https://exemplo.gov.br/concursos/feed.xml',
+    array['Transpetro', 'Enfermagem', 'edital']
+  );
+```
+
+Uma linha representa um par concurso/profissão e uma fonte. O monitor evita duplicatas e limita o processamento por execução. Configure fontes que você tem autorização para consultar.
+
+## Vercel Cron
+
+`vercel.json` agenda `/api/cron/pipeline` diariamente às 09:00 UTC, compatível com Vercel Hobby. Hobby limita Cron Jobs a uma execução por dia e pode atrasá-la em até 59 minutos. Para monitoramento mais frequente, use um plano que permita intervalos menores e ajuste a expressão cron.
+
+Os Cron Jobs só são ativados em deployments de produção. Configure `CRON_SECRET` no ambiente **Production** e faça um novo deploy após alterar esse segredo. A rota usa duração máxima de 300 segundos e processa lotes limitados para permitir retomada na execução seguinte.
+
+Para a área administrativa, crie um usuário de autenticação no Supabase e configure `NEXT_PUBLIC_SUPABASE_ANON_KEY` e `ADMIN_EMAIL` na Vercel. A API valida o token do Supabase Auth e permite revisão apenas ao e-mail configurado. Cursos em rascunho não são retornados como cursos disponíveis; eles só passam a `ready` após aprovação.
+
+## Desenvolvimento
+
+```bash
+npm install
+npm run dev
+npm run lint
+npm run typecheck
+npm run build
+```
+
+Para criar ou atualizar o schema remoto, autentique e vincule a CLI:
+
+```bash
+npx supabase login
+npx supabase link --project-ref SEU_PROJECT_REF
+npm run db:push
+```
+
+As migrations ficam em `supabase/migrations`. O processamento de PDF escaneado/OCR e o envio de notificações por e-mail não estão configurados; `notificacoes` guarda eventos até que um canal de entrega seja integrado.
+
+## Estrutura principal
+
+- `src/lib/types`: tipos do banco e do pipeline.
+- `src/lib/repositories`: acesso tipado ao Supabase.
+- `src/lib/services`: monitoramento, processamento de edital, geração por regras e autorização administrativa.
+- `src/app/admin`: revisão e aprovação manual de cursos.
+- `src/app/api/cron/pipeline`: worker acionado pela Vercel.
+- `supabase/migrations`: schema e funções de claim/publicação atômica.

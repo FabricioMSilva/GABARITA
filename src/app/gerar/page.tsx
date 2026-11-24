@@ -8,6 +8,11 @@ type GenerationResponse =
       course: { id: string; title: string };
     }
   | {
+      status: "review";
+      course: { id: string; title: string };
+      message: string;
+    }
+  | {
       status: "queued" | "processing";
       queueId: string;
       message: string;
@@ -109,6 +114,12 @@ export default function GeneratePage() {
           </button>
         </form>
 
+        <p className="mt-6 text-center text-sm text-slate-500">
+          <a className="underline hover:text-blue-700" href="/admin">
+            Área do administrador
+          </a>
+        </p>
+
         {result?.status === "available" && (
           <div
             aria-live="polite"
@@ -116,6 +127,16 @@ export default function GeneratePage() {
           >
             <p className="font-semibold">Curso disponível</p>
             <p className="mt-1">{result.course.title}</p>
+          </div>
+        )}
+
+        {result?.status === "review" && (
+          <div
+            aria-live="polite"
+            className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900"
+          >
+            <p className="font-semibold">Curso em revisão</p>
+            <p className="mt-1">{result.message}</p>
           </div>
         )}
 

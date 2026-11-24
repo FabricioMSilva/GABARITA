@@ -1,93 +1,51 @@
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { CourseGenerationRepository } from "@/lib/repositories/course-generation.repository";
+import { normalizeSearchKey } from "@/lib/utils/normalize-search";
 
 type GenerationInput = {
   concurso: string;
   profissao: string;
 };
 
-type Course = {
-  id: string;
-  titulo: string;
-};
-
-type QueueEntry = {
-  id: string;
-  status: "queued" | "processing";
-};
-
-function normalizeKey(value: string) {
-  return value.trim().replace(/\s+/g, " ").toLocaleLowerCase("pt-BR");
-}
-
 export async function findCourseOrEnqueue(input: GenerationInput) {
-  const supabase = createSupabaseServerClient();
-  const concursoKey = normalizeKey(input.concurso);
-  const profissaoKey = normalizeKey(input.profissao);
-
-  const { data: course, error: courseError } = await supabase
-    .from("cursos")
-    .select("id, titulo")
-    .eq("concurso_key", concursoKey)
-    .eq("profissao_key", profissaoKey)
-    .eq("status", "ready")
-    .maybeSingle();
-
-  if (courseError) {
-    throw new Error(`Falha ao consultar cursos: ${courseError.message}`);
-  }
+  const repository = new CourseGenerationRepository();
+  const concursoKey = normalizeSearchKey(input.concurso);
+  const profissaoKey = normalizeSearchKey(input.profissao);
+  const course = await repository.findReadyCourse(concursoKey, profissaoKey);
 
   if (course) {
     return {
       status: "available" as const,
-      course: course as Course,
+      course: { id: course.id, title: course.titulo },
     };
   }
 
-  const { data: queueEntry, error: queueError } = await supabase
-    .from("fila_geracao")
-    .insert({
-      concurso: input.concurso.trim().replace(/\s+/g, " "),
-      profissao: input.profissao.trim().replace(/\s+/g, " "),
-      concurso_key: concursoKey,
-      profissao_key: profissaoKey,
-    })
-    .select("id, status")
-    .single();
-
-  if (!queueError && queueEntry) {
+  const draft = await repository.findDraftCourse(concursoKey, profissaoKey);
+  if (draft) {
     return {
-      status: "queued" as const,
-      queueId: (queueEntry as QueueEntry).id,
-      message: "Avisaremos quando o curso estiver pronto.",
+      status: "review" as const,
+      course: { id: draft.id, title: draft.titulo },
+      message: "O material está aguardando revisão do administrador.",
     };
   }
 
-  if (queueError?.code === "23505") {
-    const { data: activeEntry, error: lookupError } = await supabase
-      .from("fila_geracao")
-      .select("id, status")
-      .eq("concurso_key", concursoKey)
-      .eq("profissao_key", profissaoKey)
-      .in("status", ["queued", "processing"])
-      .maybeSingle();
+  const activeRequest = await repository.findActiveRequest(
+    concursoKey,
+    profissaoKey,
+  );
+  const queueEntry =
+    activeRequest ??
+    (await repository.enqueue(input).then(({ id, status }) => ({
+      id,
+      status,
+    })));
 
-    if (lookupError) {
-      throw new Error(
-        `Falha ao consultar solicitação existente: ${lookupError.message}`,
-      );
-    }
-
-    if (activeEntry) {
-      const entry = activeEntry as QueueEntry;
-      return {
-        status: entry.status,
-        queueId: entry.id,
-        message: "Avisaremos quando o curso estiver pronto.",
-      };
-    }
+  if (!queueEntry) {
+    throw new Error("Não foi possível localizar ou adicionar a solicitação.");
   }
 
-  throw new Error(
-    `Falha ao adicionar solicitação à fila: ${queueError?.message ?? "resposta vazia do Supabase"}`,
-  );
+  return {
+    status: queueEntry.status,
+    queueId: queueEntry.id,
+    message: "Avisaremos quando o curso estiver pronto.",
+  };
 }
