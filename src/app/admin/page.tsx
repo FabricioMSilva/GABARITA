@@ -36,6 +36,7 @@ export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSendingRecovery, setIsSendingRecovery] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -134,6 +135,41 @@ export default function AdminPage() {
       setPassword("");
     } catch {
       setError("Não foi possível conectar à autenticação do Supabase.");
+    }
+  }
+
+  async function handlePasswordRecovery() {
+    if (!supabase) {
+      setError("Configure NEXT_PUBLIC_SUPABASE_ANON_KEY na Vercel.");
+      return;
+    }
+    if (!email.trim()) {
+      setError("Informe seu e-mail para receber o link de redefinição.");
+      return;
+    }
+
+    setError("");
+    setNotice("");
+    setIsSendingRecovery(true);
+    try {
+      const { error: recoveryError } = await supabase.auth.resetPasswordForEmail(
+        email.trim(),
+        {
+          redirectTo: `${window.location.origin}/admin/redefinir-senha`,
+        },
+      );
+      if (recoveryError) {
+        setError(recoveryError.message);
+        return;
+      }
+
+      setNotice(
+        "Se o e-mail estiver cadastrado, enviaremos um link para definir sua senha.",
+      );
+    } catch {
+      setError("Não foi possível solicitar a redefinição de senha.");
+    } finally {
+      setIsSendingRecovery(false);
     }
   }
 
@@ -363,8 +399,21 @@ export default function AdminPage() {
             >
               Entrar
             </button>
+            <button
+              className="w-full rounded-lg border border-slate-300 px-5 py-3 font-semibold text-slate-700 disabled:opacity-60"
+              disabled={!supabase || isSendingRecovery}
+              onClick={handlePasswordRecovery}
+              type="button"
+            >
+              {isSendingRecovery ? "Enviando link..." : "Esqueci minha senha"}
+            </button>
           </form>
 
+          {notice && (
+            <p className="mt-4 rounded-lg bg-emerald-50 p-4 text-sm text-emerald-800" role="status">
+              {notice}
+            </p>
+          )}
           {error && (
             <p className="mt-4 rounded-lg bg-red-50 p-4 text-sm text-red-800" role="alert">
               {error}

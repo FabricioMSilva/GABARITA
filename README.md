@@ -50,7 +50,7 @@ Uma linha representa um par concurso/profissão e uma fonte. O monitor evita dup
 
 Os Cron Jobs só são ativados em deployments de produção. Configure `CRON_SECRET` no ambiente **Production** e faça um novo deploy após alterar esse segredo. A rota usa duração máxima de 300 segundos e processa lotes limitados para permitir retomada na execução seguinte.
 
-Para a área administrativa, crie um usuário de autenticação no Supabase e configure `NEXT_PUBLIC_SUPABASE_ANON_KEY` e `ADMIN_EMAIL` na Vercel. A API valida o token do Supabase Auth e permite revisão apenas ao e-mail configurado. Cursos em rascunho não são retornados como cursos disponíveis; eles só passam a `ready` após aprovação.
+Para a área administrativa, crie um usuário de autenticação no Supabase e configure `NEXT_PUBLIC_SUPABASE_ANON_KEY` e `ADMIN_EMAIL` na Vercel. Em Supabase Auth > URL Configuration, use `https://gabarita-theta.vercel.app` como Site URL e permita `https://gabarita-theta.vercel.app/**` como Redirect URL. No login em `/admin`, use “Esqueci minha senha” para receber um link seguro e definir a senha. A API valida o token do Supabase Auth e permite revisão apenas ao e-mail configurado. Cursos em rascunho não são retornados como cursos disponíveis; eles só passam a `ready` após aprovação.
 
 ## Desenvolvimento
 
